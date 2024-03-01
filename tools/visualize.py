@@ -10,7 +10,9 @@ from mmcv.parallel import MMDistributedDataParallel
 from mmcv.runner import load_checkpoint
 from torchpack import distributed as dist
 from torchpack.utils.config import configs
-from torchpack.utils.tqdm import tqdm
+from tqdm import tqdm
+# by Github issue: https://github.com/mit-han-lab/bevfusion/issues/53
+# from torchpack.utils.tqdm import tqdm
 
 from mmdet3d.core import LiDARInstance3DBoxes
 from mmdet3d.core.utils import visualize_camera, visualize_lidar, visualize_map

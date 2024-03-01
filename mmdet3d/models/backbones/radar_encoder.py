@@ -12,7 +12,9 @@ from torch.nn import functional as F
 from mmdet3d.models.builder import build_backbone
 from mmdet.models import BACKBONES
 from torchvision.utils import save_image
-from mmdet3d.ops import feature_decorator
+# github issue 449: feature decorator circular import
+# https://github.com/mit-han-lab/bevfusion/issues/449#issuecomment-1646598119
+# from mmdet3d.ops import feature_decorator
 from mmcv.cnn.bricks.non_local import NonLocal2d
 
 from flash_attn.flash_attention import FlashMHA
@@ -174,9 +176,14 @@ class RadarFeatureNet(nn.Module):
             mask = torch.unsqueeze(mask, -1).type_as(features)
             features *= mask
             features = torch.nan_to_num(features)
+        
+        # github issue 449: feature decorator circular import
+        # https://github.com/mit-han-lab/bevfusion/issues/449#issuecomment-1646598119
+        """
         else:
             features = feature_decorator(features, num_voxels, coors, self.vx, self.vy, self.x_offset, self.y_offset, True, False, True)
-
+        """
+        
         # Forward pass through PFNLayers
         for rfn in self.rfn_layers:
             features = rfn(features)

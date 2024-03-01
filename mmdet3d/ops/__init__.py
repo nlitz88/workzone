@@ -9,7 +9,9 @@ from mmcv.ops import (
 )
 
 from .ball_query import ball_query
-from .feature_decorator import feature_decorator
+# github issue 449: feature decorator circular import
+# https://github.com/mit-han-lab/bevfusion/issues/449#issuecomment-1646598119
+# from .feature_decorator import feature_decorator
 from .furthest_point_sample import (
     Points_Sampler,
     furthest_point_sample,
