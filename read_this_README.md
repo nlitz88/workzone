@@ -22,7 +22,9 @@ cd docker
 docker build -t workzone_boundary_project -f Dockerfile .
 ```
 
-- Launch the docker container using the bev_launch.sh. For my case I used:
+- Launch the docker container using the bev_launch.sh. **NOTE: See the
+  bev_launch.sh script for updated notes on how to run the container. rocker
+  won't work by itself due to some bug/requirement by bevfusion.**
 
 ```
 rocker --nvidia --x11 --name bevfusion --volume ../bevfusion/:/bevfusion/ -- workzone_boundary_project
