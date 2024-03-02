@@ -5,6 +5,7 @@ Steps:
 
 - Unzip it into bevfusion/data/nuscenes directory that looks like:
 
+```
 bevfusion
 ├── data
 │   ├── nuscenes
@@ -12,6 +13,7 @@ bevfusion
 │   │   ├── samples
 │   │   ├── sweeps
 │   │   ├── v1.0-mini
+```
 
 - Build the docker container in docker folder. For my case, I did:
 
