@@ -145,7 +145,8 @@ def main() -> None:
                 )
 
         if "points" in data:
-            lidar = data["points"].data[0][0].numpy()
+            # lidar = data["points"].data[0][0].numpy()
+            lidar = None # Removes lidar visualization on BEV map.
             visualize_lidar(
                 os.path.join(args.out_dir, "lidar", f"{name}.png"),
                 lidar,

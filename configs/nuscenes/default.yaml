@@ -23,15 +23,15 @@ augment3d:
   translate: 0.5
 
 object_classes:
-  - car
+  # - car
   - truck
   - construction_vehicle
-  - bus
-  - trailer
+  # - bus
+  # - trailer
   - barrier
-  - motorcycle
-  - bicycle
-  - pedestrian
+  # - motorcycle
+  # - bicycle
+  # - pedestrian
   - traffic_cone
 
 map_classes:
