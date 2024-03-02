@@ -565,7 +565,7 @@ class ObjectRangeFilter:
         # using mask to index gt_labels_3d will cause bug when
         # len(gt_labels_3d) == 1, where mask=1 will be interpreted
         # as gt_labels_3d[1] and cause out of index error
-        gt_labels_3d = gt_labels_3d[mask.numpy().astype(np.bool)]
+        gt_labels_3d = gt_labels_3d[mask.numpy().astype(bool)]
 
         # limit rad to [-pi, pi]
         gt_bboxes_3d.limit_yaw(offset=0.5, period=2 * np.pi)
@@ -628,7 +628,7 @@ class ObjectNameFilter:
     def __call__(self, data):
         gt_labels_3d = data["gt_labels_3d"]
         gt_bboxes_mask = np.array(
-            [n in self.labels for n in gt_labels_3d], dtype=np.bool_
+            [n in self.labels for n in gt_labels_3d], dtype=bool
         )
         data["gt_bboxes_3d"] = data["gt_bboxes_3d"][gt_bboxes_mask]
         data["gt_labels_3d"] = data["gt_labels_3d"][gt_bboxes_mask]
