@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import random
+from typing import Optional
 import cv2
 import numpy as np
 from tqdm import tqdm
@@ -23,17 +24,6 @@ def blur_image(input_image, verbose=VFLAG):
     
     # Apply Gaussian blur
     blurred_image = cv2.GaussianBlur(input_image, (5, 5), 0)
-    
-    # verbose for debug
-    if verbose:
-        # Define window size
-        cv2.namedWindow("Blurred Image", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("Blurred Image", 800, 800)
-        
-        # Display the original and blurred images
-        cv2.imshow("Blurred Image", blurred_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
     
     return blurred_image
 
@@ -59,16 +49,6 @@ def threshold_image(input_image, verbose=VFLAG):
     
     # binarize image
     _, binary_image = cv2.threshold(gray_image, 10, 255, cv2.THRESH_BINARY)
-    
-    if verbose:
-        # Define window size
-        cv2.namedWindow("Threshold Image", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("Threshold Image", 800, 800)
-        
-        # Display the original and blurred images
-        cv2.imshow("Threshold Image", binary_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
         
     return binary_image
 
@@ -85,43 +65,40 @@ def find_connected_components(binary_image, verbose=VFLAG):
     # Convert to BGR color map
     labeled_image = cv2.cvtColor(labeled_image, cv2.COLOR_HSV2BGR)
     labeled_image[label_hue == 0] = 0  # Set background label to black
-    
-    if verbose:
-        # Define window size
-        cv2.namedWindow("Component Image", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("Component Image", 800, 800)
-        
-        # Display the original and blurred images
-        cv2.imshow("Component Image", labeled_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
 
     return labeled_image, num_labels
 
-def display_images(folder_path, num_images=NUM_IMAGES):
-    # Get list of images in the folder
-    images = [f for f in os.listdir(folder_path) if f.endswith('.png')]
+def apply_morphological_closing(binary_image: np.ndarray) -> np.ndarray:
 
-    # Randomly select 10 images
-    selected_images = random.sample(images, min(num_images, len(images)))
+    kernel = np.ones((5,5),np.uint8)
+    closed_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel)
+    
+    return closed_image
 
-    # Process each image with tqdm progress bar
-    for img_file in tqdm(selected_images, desc="Displaying images", unit="image"):
-        img_path = os.path.join(folder_path, img_file)
-        img = cv2.imread(img_path)
-        
-        # blur each image
-        blur_img = blur_image(img)
-        
-        # mask each image
-        mask_img = threshold_image(blur_img)
-        
-        # identify components
-        label_img, num_labels = find_connected_components(mask_img)
-        
-    cv2.destroyAllWindows()
+# def display_images(folder_path, num_images=NUM_IMAGES):
+#     # Get list of images in the folder
+#     images = [f for f in os.listdir(folder_path) if f.endswith('.png')]
 
-def process_image(image: np.ndarray) -> np.ndarray:
+#     # Randomly select 10 images
+#     selected_images = random.sample(images, min(num_images, len(images)))
+
+#     # Process each image with tqdm progress bar
+#     for img_file in tqdm(selected_images, desc="Displaying images", unit="image"):
+#         img_path = os.path.join(folder_path, img_file)
+#         img = cv2.imread(img_path)
+        
+#         # blur each image
+#         blur_img = blur_image(img)
+        
+#         # mask each image
+#         mask_img = threshold_image(blur_img)
+        
+#         # identify components
+#         label_img, num_labels = find_connected_components(mask_img)
+        
+#     cv2.destroyAllWindows()
+
+def process_image(image: np.ndarray, verbose=VFLAG) -> np.ndarray:
     """Function to apply a sequence of transformations/processing stages on the
     provided image.
 
@@ -134,21 +111,34 @@ def process_image(image: np.ndarray) -> np.ndarray:
 
     # blur each image
     blur_img = blur_image(image)
+    if verbose:
+        display_image(image=blur_img,
+                      window_name="Blurred Image")
     
     # mask each image
     mask_img = threshold_image(blur_img)
+    if verbose:
+        display_image(image=mask_img,
+                      window_name="Binary Image")
     
     # identify components
-    label_img, num_labels = find_connected_components(mask_img)
-    
-    return label_img
+    # label_img, num_labels = find_connected_components(mask_img)
 
-def display_image(image: np.ndarray) -> None:
-    # Define window size
-    cv2.namedWindow("Processed Image", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Processed Image", 800, 800)
+    # Apply morphological closing.
+    closed_image = apply_morphological_closing(binary_image=mask_img)
+    if verbose:
+        display_image(image=closed_image,
+                      window_name="Morphological Closing")
     
-    cv2.imshow("Processed Image", image)
+    return closed_image
+
+def display_image(image: np.ndarray, 
+                  window_name: Optional[str] = "Processed Image") -> None:
+    # Define window size
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(window_name, 800, 800)
+    
+    cv2.imshow(window_name, image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -167,4 +157,4 @@ if __name__ == "__main__":
     # Process and display each image.
     for image in images:
         processed_image = process_image(image)
-        display_image(processed_image)
+        # display_image(processed_image)
