@@ -8,7 +8,7 @@ from typing import List
 import cv2
 import numpy as np
 
-from tools.workzone_cluster.curve_fitting import blur_image, display_image, threshold_image
+from tools.workzone_cluster.boundary_generation import blur_image, display_image, threshold_image
 
 def contains_construction_objects(image: np.ndarray) -> bool:
     """Determines whether an image contains construction objects or not based on
@@ -46,16 +46,16 @@ def find_construction_images(image_directory: Path) -> List[np.ndarray]:
 
     # Iterate through all BEV images found in the specified directory.
     image_dicts = []
-    for image_file in bev_image_directory.iterdir():
+    for image_file in image_directory.iterdir():
         image_dict = {
             "lidar": str(image_file),
-            "image_data": cv2.imread(str(image_file))
+            "lidar_image_data": cv2.imread(str(image_file))
         }
         image_dicts.append(image_dict)
 
     construction_images = []
     for image_dict in image_dicts:
-        if contains_construction_objects(image_dict["image_data"]):
+        if contains_construction_objects(image_dict["lidar_image_data"]):
             # display_image(image)
             construction_images.append(image_dict)
 
@@ -78,9 +78,25 @@ def get_corresponding_camera_frames(construction_image_dicts: List[dict],
     
     return construction_image_dicts
 
+def get_construction_images(viz_directory: Path) -> List[dict]:
+    """Returns a list of all the images in the provided BEVFusion visualization
+    output directory that contain construction images. This is a wrapper for the
+    above functions.
+
+    Args:
+        viz_directory (Path): The path to the output directory from BEVFusion's
+        "visualize.py" script.
+
+    Returns:
+        List[dict]: A list of image dictionaries, where each dictionary contains
+        the lidar image data and the filepaths to all the associated images
+        (images from each camera and the LiDAR BEV view that the image data is
+        from).
+    """
+    construction_image_dicts = find_construction_images(image_directory=viz_directory/"lidar")
+    return get_corresponding_camera_frames(construction_image_dicts, viz_directory)
+
 if __name__ == "__main__":
 
-    parent_dir = Path(r"/workzone/viz/")
-    bev_image_directory = Path(r"/workzone/viz/lidar/")
-    construction_image_dicts = find_construction_images(image_directory=bev_image_directory)
-    updated_dicts = get_corresponding_camera_frames(construction_image_dicts, parent_dir)
+    viz_directory = Path(r"/workzone/viz/")
+    get_construction_images(viz_directory=viz_directory)
