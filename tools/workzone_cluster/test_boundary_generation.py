@@ -4,6 +4,7 @@ we can find.
 
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 from tools.workzone_cluster.boundary_generation import display_image, process_image
@@ -25,7 +26,21 @@ if __name__ == "__main__":
         image_dict["workzone_mask"] = process_image(image_dict["lidar_image_data"], verbose=False)
         # display_image(image_dict["workzone_mask"])
 
-    # 3. Display each image alongside its original image.
-    for image_dict in construction_image_dicts:
-        numpy_horizontal = np.hstack((image_dict["lidar_image_data"], image_dict["workzone_mask"]))
-        display_image(numpy_horizontal)
+        bev_horizontal = np.hstack((image_dict["lidar_image_data"], image_dict["workzone_mask"]))
+        cam0_image = cv2.resize(cv2.imread(str(image_dict["camera-0"])), image_dict["workzone_mask"].shape[:2] )
+        cam1_image = cv2.resize(cv2.imread(str(image_dict["camera-1"])), image_dict["workzone_mask"].shape[:2] )
+        camera_horizontal = np.hstack((cam0_image, cam1_image))
+        stack = np.vstack((camera_horizontal, bev_horizontal))
+        display_image(bev_horizontal)
+
+    # # 3. Display each image alongside its original image.
+    # for image_dict in construction_image_dicts:
+    #     bev_horizontal = np.hstack((image_dict["lidar_image_data"], image_dict["workzone_mask"]))
+    #     print(bev_horizontal.size)
+    #     cam0_image = cv2.resize(cv2.imread(str(image_dict["camera-0"])), image_dict["workzone_mask"].shape[:2] )
+    #     cam1_image = cv2.resize(cv2.imread(str(image_dict["camera-1"])), image_dict["workzone_mask"].shape[:2] )
+    #     camera_horizontal = np.hstack((cam0_image, cam1_image))
+
+    #     print(camera_horizontal.size)
+    #     stack = np.vstack((camera_horizontal, bev_horizontal))
+    #     display_image(stack)
