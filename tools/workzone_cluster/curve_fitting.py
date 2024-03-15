@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import random
 import cv2
 import numpy as np
@@ -8,7 +9,7 @@ from tqdm import tqdm
 VFLAG = True
 
 # number of images to test on
-NUM_IMAGES = 3
+NUM_IMAGES = 10
 
 # HSV threshold 1
 HSV_THRES_1_LOW = np.array([102, 45, 100])
@@ -120,6 +121,50 @@ def display_images(folder_path, num_images=NUM_IMAGES):
         
     cv2.destroyAllWindows()
 
+def process_image(image: np.ndarray) -> np.ndarray:
+    """Function to apply a sequence of transformations/processing stages on the
+    provided image.
+
+    Args:
+        image (np.ndarray): Image as numpy array with dimensions h,w,c. 
+
+    Returns:
+        np.ndarray: The image with all processing steps applied.
+    """
+
+    # blur each image
+    blur_img = blur_image(image)
+    
+    # mask each image
+    mask_img = threshold_image(blur_img)
+    
+    # identify components
+    label_img, num_labels = find_connected_components(mask_img)
+    
+    return label_img
+
+def display_image(image: np.ndarray) -> None:
+    # Define window size
+    cv2.namedWindow("Processed Image", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Processed Image", 800, 800)
+    
+    cv2.imshow("Processed Image", image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 if __name__ == "__main__":
-    folder_path = "/bevfusion/data/output/viz/lidar/"
-    display_images(folder_path)
+
+    image_directory = Path(r"/workzone/viz/lidar/")
+    test_images = [
+        r"1532402941797653-0cd661df01aa40c3bb3a773ba86f753a.png"
+    ]
+    
+    # Open the above images.
+    images = []
+    for image_name in test_images:
+        images.append(cv2.imread(str(image_directory/image_name)))
+
+    # Process and display each image.
+    for image in images:
+        processed_image = process_image(image)
+        display_image(processed_image)
