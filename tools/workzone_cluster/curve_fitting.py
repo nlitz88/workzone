@@ -75,7 +75,9 @@ def apply_morphological_closing(binary_image: np.ndarray) -> np.ndarray:
     processed_image = cv2.dilate(binary_image, kernel, iterations=2)
     erosion_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(50,50))
     processed_image = cv2.erode(processed_image, erosion_kernel, iterations=3)
-        
+    # grad_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))
+    # gradient = cv2.morphologyEx(processed_image, cv2.MORPH_GRADIENT, grad_kernel)
+
     return processed_image
 
 # def display_images(folder_path, num_images=NUM_IMAGES):
@@ -124,16 +126,16 @@ def process_image(image: np.ndarray, verbose=VFLAG) -> np.ndarray:
         display_image(image=mask_img,
                       window_name="Binary Image")
     
-    # identify components
-    # label_img, num_labels = find_connected_components(mask_img)
-
     # Apply morphological closing.
     closed_image = apply_morphological_closing(binary_image=mask_img)
     if verbose:
         display_image(image=closed_image,
                       window_name="Morphological Closing")
-    
-    return closed_image
+        
+    # identify components
+    label_img, num_labels = find_connected_components(closed_image)
+
+    return label_img
 
 def display_image(image: np.ndarray, 
                   window_name: Optional[str] = "Processed Image") -> None:
