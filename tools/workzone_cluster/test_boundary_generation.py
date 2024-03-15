@@ -26,12 +26,37 @@ if __name__ == "__main__":
         image_dict["workzone_mask"] = process_image(image_dict["lidar_image_data"], verbose=False)
         # display_image(image_dict["workzone_mask"])
 
-        bev_horizontal = np.hstack((image_dict["lidar_image_data"], image_dict["workzone_mask"]))
-        cam0_image = cv2.resize(cv2.imread(str(image_dict["camera-0"])), image_dict["workzone_mask"].shape[:2] )
-        cam1_image = cv2.resize(cv2.imread(str(image_dict["camera-1"])), image_dict["workzone_mask"].shape[:2] )
-        camera_horizontal = np.hstack((cam0_image, cam1_image))
-        stack = np.vstack((camera_horizontal, bev_horizontal))
-        display_image(bev_horizontal)
+        top_row_images = [cv2.imread(str(image_dict["camera-2"])),
+                          cv2.imread(str(image_dict["camera-0"])),
+                          cv2.imread(str(image_dict["camera-1"]))]
+        top_row = np.hstack(top_row_images)
+
+        middle_row_images = [cv2.imread(str(image_dict["camera-4"])),
+                             cv2.imread(str(image_dict["camera-3"])),
+                             cv2.imread(str(image_dict["camera-5"]))]
+        middle_row = np.hstack(middle_row_images)
+
+        image_size = middle_row_images[0].shape[:2]
+        print(image_size)
+
+
+        bottom_row_images = [cv2.resize(image_dict["lidar_image_data"], (image_size[1], image_size[0])),
+                             cv2.resize(image_dict["workzone_mask"], (image_size[1], image_size[0])),
+                             cv2.resize(image_dict["workzone_mask"], (image_size[1], image_size[0]))]
+        bottom_row = np.hstack(bottom_row_images)
+        print(bottom_row_images[0].shape)
+        print(image_dict["lidar_image_data"].shape)
+
+        stack = np.vstack((top_row, middle_row, bottom_row))
+
+        # bev_horizontal = np.hstack((image_dict["lidar_image_data"], image_dict["workzone_mask"]))
+        # cam0_image = cv2.resize(cv2.imread(str(image_dict["camera-0"])), image_dict["workzone_mask"].shape[:2] )
+        # cam1_image = cv2.resize(cv2.imread(str(image_dict["camera-1"])), image_dict["workzone_mask"].shape[:2] )
+        # camera_horizontal = np.hstack((cam0_image, cam1_image))
+        # stack = np.vstack((camera_horizontal, bev_horizontal))
+        display_image(stack)
+
+        exit()
 
     # # 3. Display each image alongside its original image.
     # for image_dict in construction_image_dicts:
