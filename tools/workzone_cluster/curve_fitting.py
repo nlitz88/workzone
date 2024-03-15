@@ -70,10 +70,13 @@ def find_connected_components(binary_image, verbose=VFLAG):
 
 def apply_morphological_closing(binary_image: np.ndarray) -> np.ndarray:
 
-    kernel = np.ones((5,5),np.uint8)
-    closed_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel)
-    
-    return closed_image
+    # kernel = np.ones((80,80),np.uint8)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(80,80))
+    processed_image = cv2.dilate(binary_image, kernel, iterations=2)
+    erosion_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(50,50))
+    processed_image = cv2.erode(processed_image, erosion_kernel, iterations=3)
+        
+    return processed_image
 
 # def display_images(folder_path, num_images=NUM_IMAGES):
 #     # Get list of images in the folder
@@ -156,5 +159,6 @@ if __name__ == "__main__":
 
     # Process and display each image.
     for image in images:
-        processed_image = process_image(image)
-        # display_image(processed_image)
+        processed_image = process_image(image, verbose=False)
+        display_image(processed_image)
+        display_image(image)
